@@ -28,7 +28,7 @@ import { CollapsibleDetails } from 'toolkit/chakra/collapsible';
 import { Link } from 'toolkit/chakra/link';
 import { Skeleton } from 'toolkit/chakra/skeleton';
 import { Tooltip } from 'toolkit/chakra/tooltip';
-import { WEI, WEI_IN_GWEI } from 'toolkit/utils/consts';
+import { TX_TYPES, WEI, WEI_IN_GWEI } from 'toolkit/utils/consts';
 import CopyToClipboard from 'ui/shared/CopyToClipboard';
 import CurrencyValue from 'ui/shared/CurrencyValue';
 import * as DetailedInfo from 'ui/shared/DetailedInfo/DetailedInfo';
@@ -131,6 +131,15 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
   ) : null;
 
   const hasInterop = rollupFeature.isEnabled && rollupFeature.interopEnabled && data.op_interop;
+
+  const txToLabel = () => {
+    if (data.type === TX_TYPES.DEPOSIT)
+      return 'Deposited to';
+    else if (data.to?.is_contract)
+      return 'Interacted with contract';
+    else
+      return 'To';
+  };
 
   return (
     <DetailedInfo.Container templateColumns={{ base: 'minmax(0, 1fr)', lg: 'max-content minmax(728px, auto)' }}>
@@ -448,7 +457,7 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
         hint="Address (external or contract) receiving the transaction"
         isLoading={ isLoading }
       >
-        { data.to?.is_contract ? 'Interacted with contract' : 'To' }
+        { txToLabel() }
       </DetailedInfo.ItemLabel>
       <DetailedInfo.ItemValue
         flexWrap={{ base: 'wrap', lg: 'nowrap' }}
@@ -751,8 +760,8 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
         <>
           <DetailedInfo.ItemLabel
             hint={ `
-            Base Fee refers to the network Base Fee at the time of the block, 
-            while Max Fee & Max Priority Fee refer to the max amount a user is willing to pay 
+            Base Fee refers to the network Base Fee at the time of the block,
+            while Max Fee & Max Priority Fee refer to the max amount a user is willing to pay
             for their tx & to give to the ${ getNetworkValidatorTitle() } respectively
           ` }
             isLoading={ isLoading }

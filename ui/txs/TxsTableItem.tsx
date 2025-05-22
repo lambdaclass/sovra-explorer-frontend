@@ -63,7 +63,7 @@ const TxsTableItem = ({ tx, showBlockInfo, currentAddress, enableTimeIncrement, 
               translatationType={ tx.translation.data?.type }
             />
           ) :
-            <TxType types={ tx.transaction_types } isLoading={ isLoading }/>
+            <TxType types={ tx.transaction_types } txType={ tx.type } isLoading={ isLoading }/>
           }
           <TxStatus status={ tx.status } errorText={ tx.status === 'error' ? tx.result : undefined } isLoading={ isLoading }/>
           <TxWatchListTags tx={ tx } isLoading={ isLoading }/>

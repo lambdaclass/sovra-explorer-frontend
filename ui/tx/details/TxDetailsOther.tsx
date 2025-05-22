@@ -3,6 +3,7 @@ import React from 'react';
 
 import type { Transaction } from 'types/api/transaction';
 
+import { TX_TYPES } from 'toolkit/utils/consts';
 import * as DetailedInfo from 'ui/shared/DetailedInfo/DetailedInfo';
 import TextSeparator from 'ui/shared/TextSeparator';
 
@@ -23,9 +24,10 @@ const TxDetailsOther = ({ nonce, type, position, queueIndex }: Props) => {
               <Box key="type">
                 <Text as="span" fontWeight="500">Txn type: </Text>
                 <Text fontWeight="600" as="span">{ type }</Text>
-                { type === 2 && <Text fontWeight="400" as="span" ml={ 1 } color="text.secondary">(EIP-1559)</Text> }
-                { type === 3 && <Text fontWeight="400" as="span" ml={ 1 } color="text.secondary">(EIP-4844)</Text> }
-                { type === 4 && <Text fontWeight="400" as="span" ml={ 1 } color="text.secondary">(EIP-7702)</Text> }
+                { type === TX_TYPES.EIP1559 && <Text fontWeight="400" as="span" ml={ 1 } color="text.secondary">(EIP-1559)</Text> }
+                { type === TX_TYPES.EIP4844 && <Text fontWeight="400" as="span" ml={ 1 } color="text.secondary">(EIP-4844)</Text> }
+                { type === TX_TYPES.EIP7702 && <Text fontWeight="400" as="span" ml={ 1 } color="text.secondary">(EIP-7702)</Text> }
+                { type === TX_TYPES.DEPOSIT && <Text fontWeight="400" as="span" ml={ 1 } color="text.secondary">(L2 Deposit)</Text> }
               </Box>
             ),
             queueIndex !== undefined ? (

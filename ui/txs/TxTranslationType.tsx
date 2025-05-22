@@ -18,7 +18,7 @@ const TxTranslationType = ({ types, isLoading, translatationType }: Props) => {
   const filteredTypes = [ 'unclassified' ];
 
   if (!translatationType || filteredTypes.includes(translatationType)) {
-    return <TxType types={ types } isLoading={ isLoading }/>;
+    return <TxType types={ types } txType={ null } isLoading={ isLoading }/>;
   }
 
   return (
