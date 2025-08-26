@@ -69,8 +69,8 @@ const LatestTxsItem = ({ tx, isLoading }: Props) => {
         />
       </Flex>
       <AddressFromTo
-        from={ tx.from }
-        to={ dataTo }
+        from={ tx.deposited_to ?? tx.from }
+        to={ tx.deposited_to ? null : dataTo }
         isLoading={ isLoading }
         fontSize="sm"
         fontWeight="500"

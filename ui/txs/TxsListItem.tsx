@@ -99,8 +99,8 @@ const TxsListItem = ({ tx, isLoading, showBlockInfo, currentAddress, enableTimeI
         </Flex>
       ) }
       <AddressFromTo
-        from={ tx.from }
-        to={ dataTo }
+        from={ tx.deposited_to ?? tx.from }
+        to={ tx.deposited_to ? null : dataTo }
         current={ currentAddress }
         isLoading={ isLoading }
         mt={ 6 }

@@ -28,7 +28,7 @@ import { CollapsibleDetails } from 'toolkit/chakra/collapsible';
 import { Link } from 'toolkit/chakra/link';
 import { Skeleton } from 'toolkit/chakra/skeleton';
 import { Tooltip } from 'toolkit/chakra/tooltip';
-import { TX_TYPES, WEI, WEI_IN_GWEI } from 'toolkit/utils/consts';
+import { WEI, WEI_IN_GWEI } from 'toolkit/utils/consts';
 import CopyToClipboard from 'ui/shared/CopyToClipboard';
 import CurrencyValue from 'ui/shared/CurrencyValue';
 import * as DetailedInfo from 'ui/shared/DetailedInfo/DetailedInfo';
@@ -115,6 +115,12 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
     ...toAddress?.watchlist_names || [],
   ].map((tag) => <Badge key={ tag.label }>{ tag.display_name }</Badge>);
 
+  const addressDepositedToTags = [
+    ...data.deposited_to?.private_tags || [],
+    ...data.deposited_to?.public_tags || [],
+    ...data.deposited_to?.watchlist_names || [],
+  ].map((tag) => <Badge key={ tag.label }>{ tag.display_name }</Badge>);
+
   const executionSuccessBadge = toAddress?.is_contract && data.result === 'success' ? (
     <Tooltip content="Contract execution completed">
       <chakra.span display="inline-flex" ml={ 2 } mr={ 1 }>
@@ -131,15 +137,6 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
   ) : null;
 
   const hasInterop = rollupFeature.isEnabled && rollupFeature.interopEnabled && data.op_interop;
-
-  const txToLabel = () => {
-    if (data.type === TX_TYPES.DEPOSIT)
-      return 'Deposited to';
-    else if (data.to?.is_contract)
-      return 'Interacted with contract';
-    else
-      return 'To';
-  };
 
   return (
     <DetailedInfo.Container templateColumns={{ base: 'minmax(0, 1fr)', lg: 'max-content minmax(728px, auto)' }}>
@@ -434,69 +431,96 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
 
       <TxDetailsActions hash={ data.hash } actions={ data.actions } isTxDataLoading={ isLoading }/>
 
-      <DetailedInfo.ItemLabel
-        hint="Address (external or contract) sending the transaction"
-        isLoading={ isLoading }
-      >
-        From
-      </DetailedInfo.ItemLabel>
-      <DetailedInfo.ItemValue columnGap={ 3 }>
-        <AddressEntity
-          address={ data.from }
-          isLoading={ isLoading }
-        />
-        { data.from.name && <Text>{ data.from.name }</Text> }
-        { addressFromTags.length > 0 && (
-          <Flex columnGap={ 3 }>
-            { addressFromTags }
-          </Flex>
-        ) }
-      </DetailedInfo.ItemValue>
-
-      <DetailedInfo.ItemLabel
-        hint="Address (external or contract) receiving the transaction"
-        isLoading={ isLoading }
-      >
-        { txToLabel() }
-      </DetailedInfo.ItemLabel>
-      <DetailedInfo.ItemValue
-        flexWrap={{ base: 'wrap', lg: 'nowrap' }}
-        columnGap={ 3 }
-      >
-        { toAddress ? (
-          <>
-            { data.to && data.to.hash ? (
-              <Flex flexWrap="nowrap" alignItems="center" maxW="100%">
-                <AddressEntity
-                  address={ toAddress }
-                  isLoading={ isLoading }
-                />
-                { executionSuccessBadge }
-                { executionFailedBadge }
-              </Flex>
-            ) : (
-              <Flex width="100%" whiteSpace="pre" alignItems="center" flexShrink={ 0 }>
-                <span>[Contract </span>
-                <AddressEntity
-                  address={ toAddress }
-                  isLoading={ isLoading }
-                  noIcon
-                />
-                <span>created]</span>
-                { executionSuccessBadge }
-                { executionFailedBadge }
-              </Flex>
-            ) }
-            { addressToTags.length > 0 && (
+      { data.deposited_to === null && (
+        <>
+          <DetailedInfo.ItemLabel
+            hint="Address (external or contract) sending the transaction"
+            isLoading={ isLoading }
+          >
+            From
+          </DetailedInfo.ItemLabel>
+          <DetailedInfo.ItemValue columnGap={ 3 }>
+            <AddressEntity
+              address={ data.from }
+              isLoading={ isLoading }
+            />
+            { data.from.name && <Text>{ data.from.name }</Text> }
+            { addressFromTags.length > 0 && (
               <Flex columnGap={ 3 }>
-                { addressToTags }
+                { addressFromTags }
               </Flex>
             ) }
-          </>
-        ) : (
-          <span>[ Contract creation ]</span>
-        ) }
-      </DetailedInfo.ItemValue>
+          </DetailedInfo.ItemValue>
+
+          <DetailedInfo.ItemLabel
+            hint="Address (external or contract) receiving the transaction"
+            isLoading={ isLoading }
+          >
+            { (data.to?.is_contract) ? 'Interacted with contract' : 'To' }
+          </DetailedInfo.ItemLabel>
+          <DetailedInfo.ItemValue
+            flexWrap={{ base: 'wrap', lg: 'nowrap' }}
+            columnGap={ 3 }
+          >
+            { toAddress ? (
+              <>
+                { data.to && data.to.hash ? (
+                  <Flex flexWrap="nowrap" alignItems="center" maxW="100%">
+                    <AddressEntity
+                      address={ toAddress }
+                      isLoading={ isLoading }
+                    />
+                    { executionSuccessBadge }
+                    { executionFailedBadge }
+                  </Flex>
+                ) : (
+                  <Flex width="100%" whiteSpace="pre" alignItems="center" flexShrink={ 0 }>
+                    <span>[Contract </span>
+                    <AddressEntity
+                      address={ toAddress }
+                      isLoading={ isLoading }
+                      noIcon
+                    />
+                    <span>created]</span>
+                    { executionSuccessBadge }
+                    { executionFailedBadge }
+                  </Flex>
+                ) }
+                { addressToTags.length > 0 && (
+                  <Flex columnGap={ 3 }>
+                    { addressToTags }
+                  </Flex>
+                ) }
+              </>
+            ) : (
+              <span>[ Contract creation ]</span>
+            ) }
+          </DetailedInfo.ItemValue>
+        </>
+      ) }
+
+      { data.deposited_to && (
+        <>
+          <DetailedInfo.ItemLabel
+            hint="Address (external or contract) receiving the deposit"
+            isLoading={ isLoading }
+          >
+            Deposited to
+          </DetailedInfo.ItemLabel>
+          <DetailedInfo.ItemValue columnGap={ 3 }>
+            <AddressEntity
+              address={ data.deposited_to }
+              isLoading={ isLoading }
+            />
+            { data.deposited_to.name && <Text>{ data.deposited_to.name }</Text> }
+            { addressDepositedToTags.length > 0 && (
+              <Flex columnGap={ 3 }>
+                { addressDepositedToTags }
+              </Flex>
+            ) }
+          </DetailedInfo.ItemValue>
+        </>
+      ) }
 
       { data.token_transfers && <TxDetailsTokenTransfers data={ data.token_transfers } txHash={ data.hash } isOverflow={ data.token_transfers_overflow }/> }
 
