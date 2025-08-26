@@ -122,6 +122,7 @@ export default function useBlockTxsQuery({ heightOrHash, blockQuery, tab }: Para
               transaction_types: [],
               transaction_tag: null,
               actions: [],
+              deposited_to: null,
             };
           })
           .filter(Boolean),

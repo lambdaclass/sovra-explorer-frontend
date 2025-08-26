@@ -114,6 +114,7 @@ const TxDetailsDegraded = ({ hash, txQuery }: Props) => {
         transaction_types: [],
         transaction_tag: null,
         actions: [],
+        deposited_to: null,
       };
     },
     placeholderData: [
